@@ -38,17 +38,19 @@ jobs:
       - name: Set up kubectl
         shell: powershell
         run: |
-          # Decode the KUBECONFIG secret into a kube config file
+          # Decode the base64-encoded KUBECONFIG secret into a kube config file
           $kubeData = "${{ secrets.KUBECONFIG }}"
           $kubePath = "$HOME\.kube\config"
+          # Create the .kube directory if it doesn't exist
           New-Item -ItemType Directory -Force -Path "$HOME\.kube"
+          # Write the decoded bytes to the config file
           [System.IO.File]::WriteAllBytes($kubePath, [System.Convert]::FromBase64String($kubeData))
 
       - name: Deploy to Kubernetes
         shell: powershell
         run: |
           kubectl set image deployment/companyapp-deployment companyapp=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} --record
-          
+
           Write-Output "🚀 Rolling out new version..."
           if (-not (kubectl rollout status deployment/companyapp-deployment --timeout=60s)) {
               Write-Output "❌ Rollout failed. Rolling back..."
