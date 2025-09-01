@@ -52,7 +52,8 @@ jobs:
           Set-Content -Path $kubePath -Value "${{ secrets.KUBECONFIG }}" -Force
 
           # Apply the deployment YAML (creates if not exists)
-          kubectl apply -f $PWD\companyapp-deployment.yaml -n default
+          kubectl apply -f companyapp-deployment.yaml -n default
+
 
           # Update container image (correct deployment & container name)
           kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} -n default
