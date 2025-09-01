@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: companyapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: companyapp
+  template:
+    metadata:
+      labels:
+        app: companyapp
+    spec:
+      containers:
+        - name: companyapp-container
+          image: amshupatel/companyapp:1.0   # Docker Hub image
+          ports:
+            - containerPort: 8080
+          env:  # <-- environment variables from ConfigMap and Secret
+            # Non-sensitive config from ConfigMap
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config      # ConfigMap name
+                  key: DATABASE_URL
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOG_LEVEL
+            # Sensitive info from Secret
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret      # Secret name
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_PASSWORD
