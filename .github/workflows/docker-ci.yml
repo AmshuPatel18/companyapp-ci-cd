@@ -36,16 +36,22 @@ jobs:
     needs: build
     steps:
       - name: Set up kubectl
+        shell: powershell
         run: |
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          # Decode the KUBECONFIG secret into a kube config file
+          $kubeData = "${{ secrets.KUBECONFIG }}"
+          $kubePath = "$HOME\.kube\config"
+          New-Item -ItemType Directory -Force -Path "$HOME\.kube"
+          [System.IO.File]::WriteAllBytes($kubePath, [System.Convert]::FromBase64String($kubeData))
 
       - name: Deploy to Kubernetes
+        shell: powershell
         run: |
           kubectl set image deployment/companyapp-deployment companyapp=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} --record
           
-          echo "🚀 Rolling out new version..."
-          if ! kubectl rollout status deployment/companyapp-deployment --timeout=60s; then
-            echo "❌ Rollout failed. Rolling back..."
-            kubectl rollout undo deployment/companyapp-deployment
-            exit 1
-          fi
+          Write-Output "🚀 Rolling out new version..."
+          if (-not (kubectl rollout status deployment/companyapp-deployment --timeout=60s)) {
+              Write-Output "❌ Rollout failed. Rolling back..."
+              kubectl rollout undo deployment/companyapp-deployment
+              exit 1
+          }
