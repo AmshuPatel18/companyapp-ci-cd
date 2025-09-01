@@ -46,12 +46,13 @@ jobs:
       - name: Deploy to Kubernetes
         shell: powershell
         run: |
-          kubectl set image deployment/companyapp-deployment companyapp=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} --record
+          # Update container image
+          kubectl set image deployment/companyapp companyapp=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
           Write-Output "🚀 Rolling out new version..."
           try {
-              kubectl rollout status deployment/companyapp-deployment --timeout=60s
+              kubectl rollout status deployment/companyapp --timeout=60s
           } catch {
               Write-Output "❌ Rollout failed. Rolling back..."
-              kubectl rollout undo deployment/companyapp-deployment
+              kubectl rollout undo deployment/companyapp
               exit 1
           }
