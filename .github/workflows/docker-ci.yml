@@ -58,6 +58,7 @@ jobs:
           # Update container image (correct deployment & container name)
           kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} -n default
 
+
           # Wait for rollout
           Write-Output "🚀 Rolling out new version..."
           try {
