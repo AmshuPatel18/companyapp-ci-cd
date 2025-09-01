@@ -56,3 +56,4 @@ jobs:
               kubectl rollout undo deployment/companyapp
               exit 1
           }
+      
