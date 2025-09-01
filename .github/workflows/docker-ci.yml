@@ -38,11 +38,10 @@ jobs:
       - name: Set up kubectl
         shell: powershell
         run: |
-          # Create kube config directory if it doesn't exist
           $kubePath = "$env:USERPROFILE\.kube\config"
+          # Create .kube folder if it doesn't exist
           New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
-
-          # Write the raw kubeconfig string from secret directly
+          # Write the secret directly (no base64 decoding needed)
           $kubeConfigContent = "${{ secrets.KUBECONFIG }}"
           Set-Content -Path $kubePath -Value $kubeConfigContent
 
