@@ -34,16 +34,17 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: build
-    env:
-      KUBECONFIG: ${{ github.workspace }}\.kube\config
     steps:
       - name: Set up kubectl
         shell: powershell
         run: |
-          $kubeData = "${{ secrets.KUBECONFIG }}"
-          $kubePath = "$env:KUBECONFIG"
+          # Create kube config directory if it doesn't exist
+          $kubePath = "$env:USERPROFILE\.kube\config"
           New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
-          [System.IO.File]::WriteAllBytes($kubePath, [System.Convert]::FromBase64String($kubeData))
+
+          # Write the raw kubeconfig string from secret directly
+          $kubeConfigContent = "${{ secrets.KUBECONFIG }}"
+          Set-Content -Path $kubePath -Value $kubeConfigContent
 
       - name: Deploy to Kubernetes
         shell: powershell
