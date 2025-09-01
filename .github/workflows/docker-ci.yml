@@ -34,25 +34,25 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: build
+    env:
+      KUBECONFIG: ${{ github.workspace }}\.kube\config
     steps:
       - name: Set up kubectl
         shell: powershell
         run: |
-          # Decode the base64-encoded KUBECONFIG secret into a kube config file
           $kubeData = "${{ secrets.KUBECONFIG }}"
-          $kubePath = "$HOME\.kube\config"
-          # Create the .kube directory if it doesn't exist
-          New-Item -ItemType Directory -Force -Path "$HOME\.kube"
-          # Write the decoded bytes to the config file
+          $kubePath = "$env:KUBECONFIG"
+          New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
           [System.IO.File]::WriteAllBytes($kubePath, [System.Convert]::FromBase64String($kubeData))
 
       - name: Deploy to Kubernetes
         shell: powershell
         run: |
           kubectl set image deployment/companyapp-deployment companyapp=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} --record
-
           Write-Output "🚀 Rolling out new version..."
-          if (-not (kubectl rollout status deployment/companyapp-deployment --timeout=60s)) {
+          try {
+              kubectl rollout status deployment/companyapp-deployment --timeout=60s
+          } catch {
               Write-Output "❌ Rollout failed. Rolling back..."
               kubectl rollout undo deployment/companyapp-deployment
               exit 1
