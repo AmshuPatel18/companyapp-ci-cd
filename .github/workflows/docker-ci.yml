@@ -48,3 +48,18 @@ jobs:
       # 8️⃣ Push Docker image to Docker Hub
       - name: Push Docker image
         run: docker push amshupatel/companyapp:1.0
+
+      # 9️⃣ Set up kubectl
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.27.0'  # or latest stable version
+
+      # 🔟 Apply Deployment to Kubernetes
+      - name: Deploy to Kubernetes
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl set image deployment/companyapp \
+            companyapp-container=amshupatel/companyapp:1.0
+          kubectl rollout status deployment/companyapp
