@@ -46,10 +46,10 @@ jobs:
       - name: Deploy to Kubernetes
         shell: powershell
         run: |
-          # Apply deployment YAML first (creates if not exists)
+          # Apply the deployment YAML (creates if not exists)
           kubectl apply -f companyapp-deployment.yaml
 
-          # Update the container image correctly
+          # Update the image with correct deployment & container name
           kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
 
           Write-Output "🚀 Rolling out new version..."
