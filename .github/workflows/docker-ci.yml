@@ -39,9 +39,11 @@ jobs:
         shell: powershell
         run: |
           $kubePath = "$HOME\.kube\config"
+          # Create .kube folder if it doesn't exist
           New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
-          # Write plain text kubeconfig stored in GitHub secret
+          # Write the kubeconfig from GitHub secret
           Set-Content -Path $kubePath -Value "${{ secrets.KUBECONFIG }}" -Force
+      
 
       - name: Deploy to Kubernetes
         shell: powershell
