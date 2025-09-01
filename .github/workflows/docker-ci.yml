@@ -39,27 +39,23 @@ jobs:
         shell: powershell
         run: |
           $kubePath = "$HOME\.kube\config"
-          # Create .kube folder if it doesn't exist
           New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
-          # Write the kubeconfig from GitHub secret
           Set-Content -Path $kubePath -Value "${{ secrets.KUBECONFIG }}" -Force
-      
 
       - name: Deploy to Kubernetes
         shell: powershell
         run: |
-          # 1️⃣ Ensure kubeconfig
-          $kubePath = "$HOME\.kube\config"
-          New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
-          Set-Content -Path $kubePath -Value "${{ secrets.KUBECONFIG }}" -Force
+          # Apply the deployment YAML (creates it if missing)
+          kubectl apply -f $PWD\companyapp-deployment.yaml -n default
 
-          # 2️⃣ Apply deployment YAML
-          kubectl apply -f companyapp-deployment.yaml -n default
-
-          # 3️⃣ Update container image dynamically
+          # ----------------------------
+          # 1️⃣ Update the image dynamically
+          # ----------------------------
           kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} -n default
 
-          # 4️⃣ Wait for rollout and rollback if failed
+          # ----------------------------
+          # 2️⃣ Wait for rollout and handle rollback
+          # ----------------------------
           Write-Output "🚀 Rolling out new version..."
           try {
               kubectl rollout status deployment/companyapp -n default --timeout=120s
