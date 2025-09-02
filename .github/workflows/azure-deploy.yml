@@ -18,6 +18,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # 🔹 Add dynamic server.port here
+      - name: Configure application.properties
+        run: |
+          mkdir -p src/main/resources
+          echo "server.port=\${PORT:8080}" > src/main/resources/application.properties
+
       - name: Build Spring Boot JAR
         run: mvn clean package -DskipTests
 

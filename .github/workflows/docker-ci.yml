@@ -35,6 +35,16 @@ jobs:
     runs-on: self-hosted
     needs: build
     steps:
+      # 🔹 1. Authenticate with Azure using Service Principal
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      # 🔹 2. Configure kubeconfig
       - name: Set up kubeconfig
         shell: powershell
         run: |
@@ -42,20 +52,13 @@ jobs:
           New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
           Set-Content -Path $kubePath -Value "${{ secrets.KUBECONFIG }}" -Force
 
+      # 🔹 3. Deploy to AKS
       - name: Deploy to Kubernetes
         shell: powershell
         run: |
-          # Apply the deployment YAML (creates it if missing)
           kubectl apply -f $PWD\companyapp-deployment.yaml -n default
-
-          # ----------------------------
-          # 1️⃣ Update the image dynamically
-          # ----------------------------
           kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} -n default
 
-          # ----------------------------
-          # 2️⃣ Wait for rollout and handle rollback
-          # ----------------------------
           Write-Output "🚀 Rolling out new version..."
           try {
               kubectl rollout status deployment/companyapp -n default --timeout=120s
