@@ -14,29 +14,29 @@ spec:
     spec:
       containers:
         - name: companyapp-container
-          image: amshupatel/companyapp:1.0   # Docker Hub image
+          image: amshupatel/companyapp:1.0
           ports:
             - containerPort: 8080
-          env:  # <-- environment variables from ConfigMap and Secret
-            # Non-sensitive config from ConfigMap
-            - name: DATABASE_URL
+          env:
+            - name: SPRING_DATASOURCE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: app-config      # ConfigMap name
-                  key: DATABASE_URL
+                  name: app-config
+                  key: SPRING_DATASOURCE_URL
             - name: LOG_LEVEL
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: LOG_LEVEL
-            # Sensitive info from Secret
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret      # Secret name
-                  key: DB_USERNAME
-            - name: DB_PASSWORD
+            - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: app-secret
-                  key: DB_PASSWORD
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: PORT
+              value: "8080"
