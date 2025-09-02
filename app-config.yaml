@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  DATABASE_URL: jdbc:postgresql://postgres-db:5432/companydb
+  DATABASE_URL: jdbc:postgresql://companyapp-db.postgres.database.azure.com:5432/companydb?sslmode=require
   LOG_LEVEL: DEBUG
