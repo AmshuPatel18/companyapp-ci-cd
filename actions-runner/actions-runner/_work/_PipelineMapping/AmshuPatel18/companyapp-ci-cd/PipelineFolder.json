@@ -1,0 +1,12 @@
+﻿{
+  "repositoryName": "AmshuPatel18/companyapp-ci-cd",
+  "pipelineDirectory": "companyapp-ci-cd",
+  "workspaceDirectory": "companyapp-ci-cd\\companyapp-ci-cd",
+  "repositories": {
+    "AmshuPatel18/companyapp-ci-cd": {
+      "repositoryPath": "companyapp-ci-cd\\companyapp-ci-cd",
+      "lastRunOn": "09/01/2025 16:30:59 +05:30"
+    }
+  },
+  "lastRunOn": "09/01/2025 16:33:52 +05:30"
+}
