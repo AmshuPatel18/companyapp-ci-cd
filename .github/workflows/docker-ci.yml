@@ -42,8 +42,9 @@ jobs:
 
       - name: Set up kubeconfig
         run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+          # Not needed for self-hosted runner
+          echo "Using existing kubeconfig from self-hosted runner"
+
 
       - name: Deploy to Kubernetes
         run: |
