@@ -59,7 +59,7 @@ jobs:
           kubectl apply -f k8s/companyapp-deployment.yaml
 
           # Update image to the new SHA
-          kubectl set image deployment/companyapp companyapp-container=$IMAGE
+          kubectl set image deployment/companyapp companyapp-container=${env:IMAGE}
 
           # Wait for rollout
           kubectl rollout status deployment/companyapp --timeout=300s
