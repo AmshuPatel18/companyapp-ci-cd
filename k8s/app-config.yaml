@@ -4,4 +4,6 @@ metadata:
   name: app-config
 data:
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-service:5432/companydb
+  SPRING_JPA_HIBERNATE_DDL_AUTO: update
+  SPRING_JPA_SHOW_SQL: "true"
   LOG_LEVEL: INFO
