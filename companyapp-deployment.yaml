@@ -19,22 +19,8 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: SPRING_DATASOURCE_URL
-            - name: LOG_LEVEL
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: LOG_LEVEL
+              value: jdbc:postgresql://192.168.1.111:5432/companydb
             - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: SPRING_DATASOURCE_USERNAME
+              value: postgres
             - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: SPRING_DATASOURCE_PASSWORD
+              value: postgres
