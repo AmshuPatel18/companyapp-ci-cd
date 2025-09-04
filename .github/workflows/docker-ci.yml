@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: self-hosted   # or ubuntu-latest if not self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -32,38 +32,29 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
 
   deploy:
-    runs-on: self-hosted
+    runs-on: self-hosted   # or ubuntu-latest
     needs: build
     steps:
-      # 🔹 1. Authenticate with Azure using Service Principal
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      # 🔹 2. Configure kubeconfig
       - name: Set up kubeconfig
-        shell: powershell
         run: |
-          $kubePath = "$HOME\.kube\config"
-          New-Item -ItemType Directory -Force -Path (Split-Path $kubePath)
-          Set-Content -Path $kubePath -Value "${{ secrets.KUBECONFIG }}" -Force
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
 
-      # 🔹 3. Deploy to AKS
       - name: Deploy to Kubernetes
-        shell: powershell
         run: |
-          kubectl apply -f $PWD\companyapp-deployment.yaml -n default
-          kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }} -n default
+          # Apply ConfigMap / Secret first
+          kubectl apply -f ./app-config.yaml
+          kubectl apply -f ./app-secret.yaml
 
-          Write-Output "🚀 Rolling out new version..."
-          try {
-              kubectl rollout status deployment/companyapp -n default --timeout=120s
-          } catch {
-              Write-Output "❌ Rollout failed. Rolling back..."
-              kubectl rollout undo deployment/companyapp -n default
-              exit 1
-          }
+          # Apply Deployment & Service
+          kubectl apply -f ./companyapp-deployment.yaml
+          kubectl apply -f ./companyapp-service.yaml
+
+          # Update the image for Deployment
+          kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
+
+          # Wait for rollout to complete
+          kubectl rollout status deployment/companyapp --timeout=120s
