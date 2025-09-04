@@ -61,4 +61,4 @@ jobs:
           kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
 
           # Wait for rollout to complete
-          kubectl rollout status deployment/companyapp --timeout=120s
+          kubectl rollout status deployment/companyapp --timeout=300s
