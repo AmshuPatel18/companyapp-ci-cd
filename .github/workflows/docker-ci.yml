@@ -35,6 +35,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -50,10 +51,7 @@ jobs:
           kubectl apply -f app-secret.yaml
           kubectl apply -f companyapp-deployment.yaml
           kubectl apply -f companyapp-service.yaml
-  
-
-  # Update deployment image dynamically
+          # Update deployment image dynamically
           kubectl set image deployment/companyapp companyapp-container=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
-
           # Wait for rollout
           kubectl rollout status deployment/companyapp --timeout=300s
