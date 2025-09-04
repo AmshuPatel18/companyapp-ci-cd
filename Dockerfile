@@ -1,14 +1,14 @@
-# Use OpenJDK 8
-FROM openjdk:8-jdk-alpine
+# Use JDK 17 Alpine
+FROM openjdk:17-jdk-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy the latest JAR from target folder
+# Copy jar
 COPY target/*.jar app.jar
 
-# Expose port 8080
+# Expose port
 EXPOSE 8080
 
-# Run the Spring Boot app
+# Run Spring Boot app
 ENTRYPOINT ["java", "-jar", "app.jar"]
