@@ -4,4 +4,4 @@ metadata:
   name: app-config
 data:
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-service:5432/companydb
-  LOG_LEVEL: DEBUG
+  LOG_LEVEL: INFO
