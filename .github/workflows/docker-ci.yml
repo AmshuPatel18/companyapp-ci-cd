@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # or ubuntu-latest if not self-hosted
+    runs-on: self-hosted  # or ubuntu-latest if not self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -32,7 +32,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
 
   deploy:
-    runs-on: ubuntu-latest   # or ubuntu-latest
+    runs-on: self-hosted   # or ubuntu-latest
     needs: build
     steps:
       - name: Checkout Code
