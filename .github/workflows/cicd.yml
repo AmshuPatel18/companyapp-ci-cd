@@ -30,9 +30,9 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          IMAGE=${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}
-          docker build -t $IMAGE .
-          docker push $IMAGE
+          $env:IMAGE="${{ secrets.DOCKER_USERNAME }}/companyapp:${{ github.sha }}"
+          docker build -t $env:IMAGE .
+          docker push $env:IMAGE
 
   deploy:
     runs-on: self-hosted
