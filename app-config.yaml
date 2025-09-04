@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  SPRING_DATASOURCE_URL: jdbc:postgresql://companyapp-db.postgres.database.azure.com:5432/companydb?sslmode=require
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/companydb
   LOG_LEVEL: DEBUG
