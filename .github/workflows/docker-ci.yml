@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted   # or ubuntu-latest if not self-hosted
+    runs-on: ubuntu-latest  # or ubuntu-latest if not self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
