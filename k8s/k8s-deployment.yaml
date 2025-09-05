@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: companyapp-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: companyapp
+  template:
+    metadata:
+      labels:
+        app: companyapp
+    spec:
+      containers:
+        - name: companyapp
+          image: amshupatel/companyapp:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://ep-lingering-wind-a8x7ctq2-pooler.eastus2.azure.neon.tech:5432/neondb?sslmode=require&channel_binding=require"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "neondb_owner"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "npg_LdZr4WwpPQ7o"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: companyapp-service
+spec:
+  selector:
+    app: companyapp
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

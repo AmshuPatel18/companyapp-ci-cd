@@ -2,9 +2,10 @@ package com.ivoyant.companydemofordocker;
 
 
 import javax.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
-@Table(name = "employee")
 public class Employee {
 
     @Id
@@ -12,28 +13,6 @@ public class Employee {
     private Long id;
 
     private String name;
-
-    // Constructors
-    public Employee() {}
-
-    public Employee(String name) {
-        this.name = name;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private Integer age;
+    private String email;
 }

@@ -8,33 +8,39 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
 @Service
 public class EmployeeService {
 
-    @Autowired
-    private EmployeeRepository repository;
+    private final EmployeeRepository employeeRepository;
 
-    public List<Employee> getAllEmployees() {
-        return repository.findAll();
+    public EmployeeService(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
     }
 
-    public Employee addEmployee(Employee employee) {
-        return repository.save(employee);
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
     }
 
     public Optional<Employee> getEmployeeById(Long id) {
-        return repository.findById(id);
+        return employeeRepository.findById(id);
     }
 
-    public Employee updateEmployee(Long id, Employee updatedEmployee) {
-        return repository.findById(id).map(emp -> {
-            emp.setName(updatedEmployee.getName());
-            return repository.save(emp);
-        }).orElseThrow(() -> new RuntimeException("Employee not found with id " + id));
+    public Employee addEmployee(Employee employee) {
+        return employeeRepository.save(employee);
+    }
+
+    public Employee updateEmployee(Long id, Employee employee) {
+        return employeeRepository.findById(id)
+                .map(e -> {
+                    e.setName(employee.getName());
+                    e.setAge(employee.getAge());
+                    e.setEmail(employee.getEmail());
+                    return employeeRepository.save(e);
+                })
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
     }
 
     public void deleteEmployee(Long id) {
-        repository.deleteById(id);
+        employeeRepository.deleteById(id);
     }
 }
