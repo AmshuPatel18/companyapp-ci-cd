@@ -34,14 +34,14 @@ jobs:
 
       # Step 5: Build and Push Docker image
       - name: Build and Push Docker Image
+        shell: pwsh
         run: |
-          set IMAGE=amshupatel/companyapp:${{ github.sha }}
-          echo Building image %IMAGE%
-          docker build -t %IMAGE% .
-          docker push %IMAGE%
-  
-  
-  
+          # Ensure SHA is lowercase for Docker tag
+          $sha = "${{ github.sha }}".ToLower()
+          $IMAGE = "amshupatel/companyapp:$sha"
+          Write-Host "Building image $IMAGE"
+          docker build -t $IMAGE .
+          docker push $IMAGE
 
   deploy:
     runs-on: self-hosted
@@ -54,13 +54,15 @@ jobs:
 
       # Step 2: Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        env:
-          IMAGE: amshupatel/companyapp:${{ github.sha }}
+        shell: pwsh
         run: |
-          # Apply only existing deployment YAML
+          $sha = "${{ github.sha }}".ToLower()
+          $IMAGE = "amshupatel/companyapp:$sha"
+
+          # Apply only your existing deployment
           kubectl apply -f k8s/k8s-deployment.yaml
 
-          # Update image to the new SHA
+          # Update deployment image
           kubectl set image deployment/companyapp companyapp=$IMAGE
 
           # Wait for rollout
