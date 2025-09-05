@@ -35,12 +35,13 @@ jobs:
       # Step 5: Build and Push Docker image
       - name: Build and Push Docker Image
         run: |
-          $env:IMAGE = "amshupatel/companyapp:${{ github.sha }}"
-          Write-Host "Building image $env:IMAGE"
-          docker build -t $env:IMAGE .
-          docker push $env:IMAGE
-        shell: pwsh
-
+          set IMAGE=amshupatel/companyapp:${{ github.sha }}
+          echo Building image %IMAGE%
+          docker build -t %IMAGE% .
+          docker push %IMAGE%
+  
+  
+  
 
   deploy:
     runs-on: self-hosted
