@@ -9,11 +9,9 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -21,48 +19,44 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # Step 3: Build Maven project
       - name: Build with Maven
         run: mvn clean package -DskipTests
-        shell: cmd
+        shell: pwsh   # Use PowerShell shell for everything
 
-      # Step 4: Docker login
       - name: Docker Login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Build & push Docker image (SHA tag, lowercase)
       - name: Build and Push Docker Image
-        shell: cmd
+        shell: pwsh
         run: |
-          set IMAGE=amshupatel/companyapp:%GITHUB_SHA%
-          REM Convert IMAGE to lowercase
-          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); \
-          echo 'Building image:' $env:IMAGE; \
-          docker build -t $env:IMAGE .; \
-          docker push $env:IMAGE"
-        id: docker
+          # Set Docker image using Git SHA
+          $sha = "${{ github.sha }}".ToLower()
+          $IMAGE = "amshupatel/companyapp:$sha"
+          Write-Host "Building image $IMAGE"
+
+          # Build and push
+          docker build -t $IMAGE .
+          docker push $IMAGE
 
   deploy:
     runs-on: self-hosted
     needs: build
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        shell: cmd
+        shell: pwsh
         run: |
-          REM Use same image as pushed in build step
-          set IMAGE=amshupatel/companyapp:%GITHUB_SHA%
-          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); \
-          echo 'Deploying image:' $env:IMAGE; \
-          kubectl apply -f k8s/k8s-deployment.yaml; \
-          kubectl apply -f k8s/k8s-service.yaml; \
-          kubectl set image deployment/companyapp companyapp=$env:IMAGE; \
-          kubectl rollout status deployment/companyapp --timeout=300s"
+          $sha = "${{ github.sha }}".ToLower()
+          $IMAGE = "amshupatel/companyapp:$sha"
+          Write-Host "Deploying image $IMAGE"
+
+          kubectl apply -f k8s/k8s-deployment.yaml
+          kubectl apply -f k8s/k8s-service.yaml
+          kubectl set image deployment/companyapp companyapp=$IMAGE
+          kubectl rollout status deployment/companyapp --timeout=300s
