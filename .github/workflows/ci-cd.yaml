@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Setup JDK 17
+      # Step 2: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -23,34 +23,46 @@ jobs:
 
       # Step 3: Build Maven project
       - name: Build with Maven
-        run: mvn -B clean package -DskipTests
+        run: mvn clean package -DskipTests
         shell: cmd
 
-      # Step 4: Log in to Docker Hub
+      # Step 4: Docker login
       - name: Docker Login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Build and Push Docker image (CMD)
+      # Step 5: Build & push Docker image (SHA tag, lowercase)
       - name: Build and Push Docker Image
         shell: cmd
         run: |
           set IMAGE=amshupatel/companyapp:%GITHUB_SHA%
-          REM Convert IMAGE to lowercase (Windows CMD workaround)
-          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); echo 'Building image:' $env:IMAGE; docker build -t $env:IMAGE .; docker push $env:IMAGE"
+          REM Convert IMAGE to lowercase
+          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); \
+          echo 'Building image:' $env:IMAGE; \
+          docker build -t $env:IMAGE .; \
+          docker push $env:IMAGE"
+        id: docker
 
   deploy:
     runs-on: self-hosted
     needs: build
 
     steps:
+      # Step 1: Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Step 2: Deploy to Kubernetes
       - name: Deploy to Kubernetes
         shell: cmd
         run: |
+          REM Use same image as pushed in build step
           set IMAGE=amshupatel/companyapp:%GITHUB_SHA%
-          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); kubectl apply -f k8s/k8s-deployment.yaml; kubectl set image deployment/companyapp companyapp=$env:IMAGE; kubectl rollout status deployment/companyapp --timeout=300s"
+          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); \
+          echo 'Deploying image:' $env:IMAGE; \
+          kubectl apply -f k8s/k8s-deployment.yaml; \
+          kubectl apply -f k8s/k8s-service.yaml; \
+          kubectl set image deployment/companyapp companyapp=$env:IMAGE; \
+          kubectl rollout status deployment/companyapp --timeout=300s"

@@ -1,0 +1,13 @@
+# k8s/k8s-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: companyapp-service
+spec:
+  selector:
+    app: companyapp
+  type: LoadBalancer  # use NodePort if running on Minikube locally
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
