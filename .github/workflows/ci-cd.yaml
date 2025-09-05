@@ -24,6 +24,7 @@ jobs:
       # Step 3: Build Maven project
       - name: Build with Maven
         run: mvn -B clean package -DskipTests
+        shell: cmd
 
       # Step 4: Log in to Docker Hub
       - name: Docker Login
@@ -32,38 +33,24 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Build and Push Docker image
+      # Step 5: Build and Push Docker image (CMD)
       - name: Build and Push Docker Image
-        shell: pwsh
+        shell: cmd
         run: |
-          # Ensure SHA is lowercase for Docker tag
-          $sha = "${{ github.sha }}".ToLower()
-          $IMAGE = "amshupatel/companyapp:$sha"
-          Write-Host "Building image $IMAGE"
-          docker build -t $IMAGE .
-          docker push $IMAGE
+          set IMAGE=amshupatel/companyapp:%GITHUB_SHA%
+          REM Convert IMAGE to lowercase (Windows CMD workaround)
+          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); echo 'Building image:' $env:IMAGE; docker build -t $env:IMAGE .; docker push $env:IMAGE"
 
   deploy:
     runs-on: self-hosted
     needs: build
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Deploy to Kubernetes
       - name: Deploy to Kubernetes
-        shell: pwsh
+        shell: cmd
         run: |
-          $sha = "${{ github.sha }}".ToLower()
-          $IMAGE = "amshupatel/companyapp:$sha"
-
-          # Apply only your existing deployment
-          kubectl apply -f k8s/k8s-deployment.yaml
-
-          # Update deployment image
-          kubectl set image deployment/companyapp companyapp=$IMAGE
-
-          # Wait for rollout
-          kubectl rollout status deployment/companyapp --timeout=300s
+          set IMAGE=amshupatel/companyapp:%GITHUB_SHA%
+          powershell -Command "$env:IMAGE=$env:IMAGE.ToLower(); kubectl apply -f k8s/k8s-deployment.yaml; kubectl set image deployment/companyapp companyapp=$env:IMAGE; kubectl rollout status deployment/companyapp --timeout=300s"
