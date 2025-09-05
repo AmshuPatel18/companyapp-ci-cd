@@ -26,7 +26,8 @@ spec:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://ep-lingering-wind-a8x7ctq2-pooler.eastus2.azure.neon.tech:5432/neondb?sslmode=require&channel_binding=require"
+              value: "jdbc:postgresql://ep-lingering-wind-a8x7ctq2-pooler.eastus2.azure.neon.tech:5432/neondb?sslmode=require"
+
             - name: SPRING_DATASOURCE_USERNAME
               value: "neondb_owner"
             - name: SPRING_DATASOURCE_PASSWORD
