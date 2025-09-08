@@ -58,7 +58,7 @@ jobs:
           # ----------------------------
           Write-Output "🚀 Rolling out new version..."
           try {
-              kubectl rollout status deployment/companyapp -n default --timeout=120s
+              kubectl rollout status deployment/companyapp -n default --timeout=300s
           } catch {
               Write-Output "❌ Rollout failed. Rolling back..."
               kubectl rollout undo deployment/companyapp -n default
