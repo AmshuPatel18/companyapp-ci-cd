@@ -18,7 +18,7 @@ spec:
           ports:
             - containerPort: 8080
           env:  # <-- environment variables from ConfigMap and Secret
-            # Non-sensitive config from ConfigMap
+            # Non-sensitive config from ConfigMap!!
             - name: DATABASE_URL
               valueFrom:
                 configMapKeyRef:
