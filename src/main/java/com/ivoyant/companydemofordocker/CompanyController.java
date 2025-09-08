@@ -1,29 +1,28 @@
 package com.ivoyant.companydemofordocker;
 
 
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
-    @RestController
-    @RequestMapping("/employees")
-    public class CompanyController {
 
-        private final List<String> students = new ArrayList<>();
+@RestController
+@RequestMapping("/employees")
+public class CompanyController {
 
-        @GetMapping
-        public List<String> getEmployees() {
-            return students;
-        }
-        @Value("${HOSTNAME:unknown}") // Kubernetes injects Pod name in HOSTNAME env
-        private String podName;
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
-        @PostMapping
-        public String addEmployee(@RequestParam String name) {
-            students.add(name);
-            return "Added: " + name;
-        }
+    @GetMapping
+    public List<Employee> getEmployees() {
+        return employeeRepository.findAll();
     }
 
+    @PostMapping
+    public Employee addEmployee(@RequestParam String name) {
+        Employee emp = new Employee(name);
+        return employeeRepository.save(emp);
+    }
+}
